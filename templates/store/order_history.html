@@ -1,0 +1,63 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>My Orders</h2>
+    
+    {% if orders %}
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th>Order Number</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Payment</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order_number }}</td>
+                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if order.status == 'pending' %}
+                    <span class="badge bg-warning">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'processing' %}
+                    <span class="badge bg-info">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'shipped' %}
+                    <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'delivered' %}
+                    <span class="badge bg-success">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'returned' %}
+                    <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'cancelled' %}
+                    <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-light text-dark">{{ order.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>₹{{ order.total_amount }}</td>
+                <td>{{ order.get_payment_method_display }}</td>
+                <td>
+                    <a href="{% url 'order_detail' order.order_number %}" class="btn btn-sm btn-primary">View Details</a>
+                    {% if order.can_be_cancelled %}
+                    <a href="{% url 'cancel_order' order.id %}" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel</a>
+                    {% endif %}
+                    {% if order.can_be_returned %}
+                    <a href="{% url 'return_order' order.id %}" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to return this order?')">Return</a>
+                    {% endif %}
+                    <a href="{% url 'create_complaint' %}?order={{ order.id }}" class="btn btn-sm btn-outline-danger" title="File a complaint for this order">
+                        <i class="fas fa-exclamation-triangle"></i> Complaint
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info mt-4">You haven't placed any orders yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

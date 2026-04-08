@@ -1,0 +1,212 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<style>
+    /* Mobile responsive cart */
+    @media (max-width: 768px) {
+        .cart-table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .cart-table-responsive table {
+            min-width: 600px;
+        }
+        
+        .cart-product-name {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+        
+        .cart-product-info {
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+    }
+</style>
+
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4">Shopping Cart</h2>
+    
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-lg-8 col-md-12 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-3 p-md-4">
+                    <div class="cart-table-responsive">
+                        <table class="table table-hover">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center cart-product-info">
+                                            {% if item.product.images %}
+                                            <img src="{{ item.product.images.url }}" alt="{{ item.product.name }}" class="rounded me-2 me-md-3" style="width: 50px; height: 50px; min-width: 50px; object-fit: cover;">
+                                            {% endif %}
+                                            <div class="flex-grow-1">
+                                                <strong class="cart-product-name" title="{{ item.product.name }}">{{ item.product.name }}</strong>
+                                                {% if not item.product.is_available or item.product.stock_quantity == 0 %}
+                                                <br><span class="badge bg-danger">Out of Stock</span>
+                                                {% elif item.quantity > item.product.stock_quantity %}
+                                                <br><span class="badge bg-warning">Only {{ item.product.stock_quantity }} available</span>
+                                                {% else %}
+                                                <br><span class="badge bg-success">In Stock</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>₹{{ item.product.price }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <form method="post" action="{% url 'update_cart_quantity' item.id %}" class="d-flex align-items-center" id="cartForm{{ item.id }}">
+                                                {% csrf_token %}
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                        onclick="updateCartQuantity({{ item.id }}, -1, {{ item.product.stock_quantity }})" 
+                                                        {% if item.quantity <= 1 %}disabled{% endif %}
+                                                        style="width: 32px; height: 32px; padding: 0;">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <p id="cartQty{{ item.id }}" 
+                                                   class="mx-2 text-center mb-0" 
+                                                   style="width: 50px; font-weight: bold; font-size: 14px; color: #212529; line-height: 32px;">
+                                                    {{ item.quantity }}
+                                                </p>
+                                                <input type="hidden" name="quantity" id="cartQtyHidden{{ item.id }}" value="{{ item.quantity }}">
+
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                                        onclick="updateCartQuantity({{ item.id }}, 1, {{ item.product.stock_quantity }})" 
+                                                        {% if item.quantity >= item.product.stock_quantity %}disabled{% endif %}
+                                                        style="width: 32px; height: 32px; padding: 0;">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        {% if item.quantity > item.product.stock_quantity %}
+                                        <small class="text-danger d-block mt-1"><i class="fas fa-exclamation-triangle"></i> Only {{ item.product.stock_quantity }} available</small>
+                                        {% elif item.product.stock_quantity == 0 %}
+                                        <small class="text-danger d-block mt-1"><i class="fas fa-times-circle"></i> Out of Stock</small>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>₹{{ item.get_total }}</strong></td>
+                                    <td>
+                                        <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> <span class="d-none d-md-inline">Remove</span></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-12">
+            <div class="order-summary-wrapper" style="position: relative;">
+                <div class="card shadow-lg border-0 bg-white" id="orderSummaryCard" style="position: sticky; top: 20px; z-index: 100;">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">Order Summary</h4>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong class="text-dark">₹{{ cart.get_subtotal }}</strong>
+                        </div>
+                        
+                        {% if discount > 0 %}
+                        <div class="d-flex justify-content-between mb-2 text-success">
+                            <span>Discount:</span>
+                            <strong>-₹{{ discount }}</strong>
+                        </div>
+                        {% endif %}
+                        
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <h5 class="fw-bold">Total:</h5>
+                            <h5 class="text-primary fw-bold">₹{{ total }}</h5>
+                        </div>
+                        
+                        <!-- Coupon Code -->
+                        <form method="post" action="{% url 'apply_coupon' %}" class="mb-3">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" name="coupon_code" class="form-control" placeholder="Coupon Code">
+                                <button type="submit" class="btn btn-secondary">Apply</button>
+                            </div>
+                        </form>
+                        
+                        {% if discount > 0 %}
+                        <a href="{% url 'remove_coupon' %}" class="btn btn-sm btn-outline-danger mb-3"><i class="fas fa-trash"></i> Remove Coupon</a>
+                        {% endif %}
+                        
+                        <!-- Check stock issues -->
+                        {% with has_stock_issues=False %}
+                        {% for item in cart_items %}
+                            {% if item.product.stock_quantity == 0 or item.quantity > item.product.stock_quantity %}
+                                {% with has_stock_issues=True %}{% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if has_stock_issues %}
+                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                            <i class="fas fa-exclamation-triangle me-2"></i>Fix Stock Issues to Checkout
+                        </button>
+                        <small class="text-danger d-block mt-2 text-center">
+                            <i class="fas fa-info-circle me-1"></i>Some items are out of stock or exceed available quantity
+                        </small>
+                        {% else %}
+                        <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg w-100 shadow-sm">
+                            <i class="fas fa-lock me-2"></i>Proceed to Checkout
+                        </a>
+                        {% endif %}
+                        {% endwith %}
+                        
+                        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary w-100 mt-3">
+                            <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Your cart is empty. <a href="{% url 'product_list' %}">Start shopping now!</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Update cart quantity with +/- buttons
+    function updateCartQuantity(itemId, change, maxStock) {
+        const qtyDisplay = document.getElementById('cartQty' + itemId);
+        const qtyHidden = document.getElementById('cartQtyHidden' + itemId);
+        const currentQty = parseInt(qtyHidden.value);
+        const newQty = currentQty + change;
+        
+        // Validate quantity
+        if (newQty < 1 || newQty > maxStock) {
+            return;
+        }
+        
+        // Update both display and hidden input
+        qtyDisplay.textContent = newQty;
+        qtyHidden.value = newQty;
+        
+        // Submit form
+        const form = document.getElementById('cartForm' + itemId);
+        form.submit();
+    }
+</script>
+
+{% endblock %}

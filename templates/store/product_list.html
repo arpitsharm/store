@@ -1,0 +1,143 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-md-3 mb-4">
+            <div class="card p-3">
+                <h4>Filters</h4>
+                
+                <!-- Categories -->
+                <div class="mb-3">
+                    <h6>Categories</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'product_list' %}" class="{% if not category %}text-primary{% endif %}">All Products</a></li>
+                        {% for cat in categories %}
+                        <li><a href="{% url 'category_products' cat.slug %}" class="{% if category.slug == cat.slug %}text-primary{% endif %}">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <!-- Price Range -->
+                <div class="mb-3">
+                    <h6>Price Range</h6>
+                    <form method="get" class="d-flex flex-column gap-2">
+                        <input type="number" name="min_price" class="form-control" placeholder="Min Price" value="{{ request.GET.min_price }}">
+                        <input type="number" name="max_price" class="form-control" placeholder="Max Price" value="{{ request.GET.max_price }}">
+                        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                    </form>
+                </div>
+                
+                <!-- Sorting -->
+                <div class="mb-3">
+                    <h6>Sort By</h6>
+                    <select class="form-control" onchange="window.location.href=this.value">
+                        <option value="?sort=-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest</option>
+                        <option value="?sort=price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="?sort=price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="?sort=name" {% if sort_by == 'name' %}selected{% endif %}>Name: A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Grid -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">{% if category %}{{ category.name }}{% else %}All Products{% endif %}</h2>
+                <span class="text-muted">{{ page_obj.paginator.count }} products found</span>
+            </div>
+            
+            <div class="row g-4">
+                {% for product in page_obj %}
+                <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card product-card h-100 shadow-sm">
+                        <!-- Stock Status Badge -->
+                        {% if product.is_available and product.stock_quantity > 0 %}
+                        <div class="stock-badge">{{ product.stock_quantity }} in stock</div>
+                        {% else %}
+                        <div class="out-of-stock-badge">Out of Stock</div>
+                        {% endif %}
+                        
+                        {% if product.images %}
+                        <img src="{{ product.images.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ product.name }}</h5>
+                            <p class="card-price text-primary fw-bold">₹{{ product.price }}</p>
+                            
+                            {% if product.is_available and product.stock_quantity > 0 %}
+                            <div class="product-actions">
+                                <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary btn-sm flex-grow-1" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success btn-sm" title="Add to Cart">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <button class="btn btn-secondary btn-sm w-100" disabled>
+                                <i class="fas fa-ban me-2"></i>Out of Stock
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-box-open fa-3x mb-3"></i>
+                        <p>No products found matching your criteria.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

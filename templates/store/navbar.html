@@ -1,0 +1,65 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="{% static 'logo.jpg' %}" alt="The Diora Logo" style="height: 60px; width: auto;">
+            THE DIORA
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'about' %}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'product_list' %}">Shop</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-bs-toggle="dropdown">
+                        Categories
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% for category in categories|slice:":5" %}
+                        <li><a class="dropdown-item" href="{% url 'category_products' category.slug %}">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+            
+            <div class="nav-icons">
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" title="My Account">
+                    <i class="fas fa-user"></i>
+                </a>
+                
+                {% else %}
+                <a href="{% url 'login' %}" title="Login">
+                    <i class="fas fa-user"></i>
+                </a>
+                {% endif %}
+                
+                <a href="{% url 'wishlist' %}" title="Wishlist">
+                    <i class="fas fa-heart"></i>
+                </a>
+                
+                <a href="{% url 'cart' %}" title="Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    {% if cart_count > 0 %}
+                    <span class="badge bg-danger">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+                
+                <a href="{% url 'product_list' %}" title="Search">
+                    <i class="fas fa-search"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

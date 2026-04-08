@@ -1,0 +1,271 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<style>
+    .about-container {
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 80vh;
+    }
+
+    .about-card {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .about-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 40px;
+        text-align: center;
+        color: white;
+    }
+
+    .about-header h1 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .about-header .tagline {
+        font-size: 20px;
+        font-weight: 300;
+        opacity: 0.95;
+        letter-spacing: 2px;
+    }
+
+    .about-body {
+        padding: 50px 40px;
+    }
+
+    .about-section {
+        margin-bottom: 35px;
+    }
+
+    .about-section h2 {
+        color: #667eea;
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .about-section h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 2px;
+    }
+
+    .about-section p {
+        color: #555;
+        font-size: 17px;
+        line-height: 1.8;
+        margin-bottom: 15px;
+    }
+
+    .highlight-box {
+        background: linear-gradient(135deg, #667eea15, #764ba215);
+        border-left: 4px solid #667eea;
+        padding: 25px;
+        border-radius: 10px;
+        margin: 30px 0;
+    }
+
+    .highlight-box p {
+        color: #444;
+        font-size: 18px;
+        font-style: italic;
+        margin: 0;
+    }
+
+    .founder-section {
+        margin-top: 50px;
+        padding-top: 40px;
+        border-top: 2px solid #e0e0e0;
+        text-align: center;
+    }
+
+    .founder-label {
+        font-size: 16px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin-bottom: 15px;
+    }
+
+    .founder-name {
+        font-size: 36px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+    }
+
+    .founder-title {
+        font-size: 18px;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+    }
+
+    .feature-item {
+        text-align: center;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-item i {
+        font-size: 36px;
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+
+    .feature-item h3 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .feature-item p {
+        font-size: 14px;
+        color: #666;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .about-header h1 {
+            font-size: 36px;
+        }
+
+        .about-header .tagline {
+            font-size: 16px;
+        }
+
+        .about-body {
+            padding: 30px 20px;
+        }
+
+        .about-section h2 {
+            font-size: 24px;
+        }
+
+        .about-section p {
+            font-size: 15px;
+        }
+
+        .founder-name {
+            font-size: 28px;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="about-container">
+    <div class="about-card">
+        <!-- Header -->
+        <div class="about-header">
+            <h1>The Diora</h1>
+            <p class="tagline">Elevate Your Living Space</p>
+        </div>
+
+        <!-- Body -->
+        <div class="about-body">
+            <!-- About Section -->
+            <div class="about-section">
+                <h2>Our Story</h2>
+                <p>
+                    Welcome to <strong>The Diora</strong> – your premier destination for exquisite home decor and furniture. 
+                    We believe that every home deserves to be a masterpiece, and our curated collection is designed to 
+                    transform your living spaces into havens of style and comfort.
+                </p>
+                <p>
+                    From elegant furniture pieces to stunning decorative accents, we bring you products that blend 
+                    contemporary design with timeless elegance. Each item in our collection is carefully selected to 
+                    ensure the highest quality and aesthetic appeal.
+                </p>
+            </div>
+
+            <!-- Highlight Box -->
+            <div class="highlight-box">
+                <p>
+                    "At The Diora, we don't just sell products – we help you create spaces that tell your unique story 
+                    and reflect your personal style."
+                </p>
+            </div>
+
+            <!-- Features -->
+            <div class="about-section">
+                <h2>Why Choose Us</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-gem"></i>
+                        <h3>Premium Quality</h3>
+                        <p>Handpicked products with exceptional craftsmanship</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-truck"></i>
+                        <h3>Fast Delivery</h3>
+                        <p>Swift and secure delivery to your doorstep</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-headset"></i>
+                        <h3>24/7 Support</h3>
+                        <p>Dedicated customer service always ready to help</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-undo"></i>
+                        <h3>Easy Returns</h3>
+                        <p>Hassle-free returns and exchanges</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission Section -->
+            <div class="about-section">
+                <h2>Our Mission</h2>
+                <p>
+                    Our mission is to make premium home decor accessible to everyone. We strive to provide an 
+                    exceptional shopping experience with a seamless online platform, competitive pricing, and 
+                    unparalleled customer service. Whether you're redecorating your entire home or adding the 
+                    perfect finishing touch, The Diora is here to help you every step of the way.
+                </p>
+            </div>
+
+            <!-- Founder Section -->
+            <div class="founder-section">
+                <p class="founder-label">Founded By</p>
+                <h2 class="founder-name">Akansha Mittal</h2>
+                <p class="founder-title">Founder & CEO, The Diora</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

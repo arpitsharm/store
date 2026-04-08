@@ -1,0 +1,65 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-exclamation-triangle me-2 text-warning"></i>My Complaints</h2>
+        <div>
+            <a href="{% url 'create_complaint' %}" class="btn btn-warning me-2">
+                <i class="fas fa-plus me-2"></i>File New Complaint
+            </a>
+            <a href="{% url 'order_history' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Orders
+            </a>
+        </div>
+    </div>
+
+    {% if complaints %}
+    <div class="row">
+        {% for complaint in complaints %}
+        <div class="col-md-12 mb-3">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">
+                            <i class="fas fa-file-alt me-2"></i>{{ complaint.subject }}
+                        </h5>
+                        <small class="text-muted">
+                            Order #{{ complaint.order.order_number }} | 
+                            Submitted on {{ complaint.created_at|date:"M d, Y H:i" }}
+                        </small>
+                    </div>
+                    <div>
+                        {% if complaint.status == 'pending' %}
+                        <span class="badge bg-warning fs-6">Pending</span>
+                        {% elif complaint.status == 'resolved' %}
+                        <span class="badge bg-success fs-6">Resolved</span>
+                        {% elif complaint.status == 'rejected' %}
+                        <span class="badge bg-danger fs-6">Rejected</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ complaint.description }}</p>
+                    
+                    {% if complaint.owner_response %}
+                    <div class="alert alert-info mt-3">
+                        <h6><i class="fas fa-reply me-2"></i>Owner Response:</h6>
+                        <p class="mb-0">{{ complaint.owner_response }}</p>
+                        {% if complaint.resolved_at %}
+                        <small class="text-muted">Responded on {{ complaint.resolved_at|date:"M d, Y H:i" }}</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>You haven't filed any complaints yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
